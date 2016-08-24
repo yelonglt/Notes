@@ -64,7 +64,7 @@ git commit -m 'update .gitignore'
 
 ```
 ####git工作流程图
-![git工作流程图](images/git-flow-chart.png)
+![git工作流程图](/images/git-flow-chart.png)
 
 ```
 Workspace：工作区
