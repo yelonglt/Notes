@@ -1,0 +1,13 @@
+#Volley
+***
+###Volley的使用
+1. 创建一个RequestQueue请求队列对象Volley.newRequestQueue(context)，内部会检查手机系统版本，决定使用HttpURLConnection（版本大于9使用）还是HttpClient，然后调用start()方法。start内部会创建一个缓存调度线程CacheDispatcher和四个网络调度线程NetworkDispatcher并运行。
+2. 添加请求到请求队列。在默认情况下，每条请求都是有缓存的，当然我们可以通过setShouldCache(false)禁止缓存。
+3. 请求优先加入缓存队列CacheQueue，缓存调度线程CacheDispatcher从缓存中取出响应结果。如果为空，则把请求加入到网络队列NetworkQueue，如果不为空，判断是否过期，过期同样把请求加入到网络队列。
+4. 网络调度线程NetworkDispatcher处理请求，调用Network的performRequest()方法去发送请求，返回一个NetworkResponse对象。然后request执行parseNetworkResponse(networkResponse)，解析请求结果以及将数据写入缓存。这个方法的实现交给Request的子类来完成，因为不同种类的Request解析的方式不同，因此自定义request必须重写parseNetworkResponse()方法。解析完数据之后又会调用deliverResponse(response.result)，返回结果。因此自定义request必须重写deliverResponse()方法
+
+###Volley的源码分析
+1. request是如何执行的？缓存调度线程(CacheDispatcher)和网络调度线程(NetworkDispatcher)死循环执行;当有一个request被add时，根据缓存策略把请求添加到调度线程，假设这个request没有被添加过，请求最终会被添加到网络调度线程，执行run方法。Network接口的实现类BasicNetwork, BasicNetwork的构造方法传参HttpStack。执行网络请求，NetworkResponse networkResponse = mNetwork.performRequest(request)，最终调用HttpStack类的方法performRequest()。request根据不同的请求方式调用不同请求设置参数方法。
+2. response是如何取回的？Response<?> response = request.parseNetworkResponse(networkResponse)解析返回数据；ResponseDelivery接口的实现类ExecutorDelivery，然后调用mDelivery.postResponse(request, response)返回结果。执行器执行ResponseDeliveryRunnable对象的run方法，返回调用request的deliverResponse()方法。
+
+
