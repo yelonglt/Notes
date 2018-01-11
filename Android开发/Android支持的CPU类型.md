@@ -32,3 +32,8 @@ defaultConfig {
 1. adb shell
 2. cd /proc
 3. cat cpuinfo
+
+###查看手机支持的指令
+1. 查看手机的abi信息 adb shell getprop ro.product.cpu.abi
+2. 查看手机32位的abi信息 adb shell getprop ro.product.cpu.abilist32
+3. 查看手机64位的abi信息 adb shell getprop ro.product.cpu.abilist64
