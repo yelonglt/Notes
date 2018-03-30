@@ -11,3 +11,10 @@
 2. response是如何取回的？Response<?> response = request.parseNetworkResponse(networkResponse)解析返回数据；ResponseDelivery接口的实现类ExecutorDelivery，然后调用mDelivery.postResponse(request, response)返回结果。执行器执行ResponseDeliveryRunnable对象的run方法，返回调用request的deliverResponse()方法。
 
 
+###相关问题
+1. 为什么说Volley适合数据量小，通信频繁的网络操作？（优缺点）
+   
+   1. ByteArrayPool根据类名，知道这是一个字节数组缓存池。这是用来缓存网络请求获得的数据。当网络请求得到返回数据以后，我们需要在内存中开辟出一块区域来存放我们得到的网络数据，不论是json还是图片，都会存在于内存的某一块区域，然后显示在UI上。
+   2. 假如频繁的请求数据，那么拿到数据就需要在堆内存中开辟存储空间，然后GC回收这块区域，如此反复造成GC频繁影响性能。ByteArrayPool的实现原理是通过实现缓存从而减少GC。
+   3. ByteArrayPool维护两个list集合。LinkedList mBuffersByLastUse按照最近使用对byte[]排序；ArrayList mBuffersBySize按照byte[]大小对byte[]数组排序。
+   4. 所以Volley适合数据量小的，因为拿到数据都是内存操作，数据量大譬如大图片容易造成内存溢出；通信频繁的操作是因为使用了字节数组缓存池，可以减少GC操作。
