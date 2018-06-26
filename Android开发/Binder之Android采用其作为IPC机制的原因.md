@@ -36,4 +36,13 @@
 1. Java Framework层：作为Server端继承（或间接继承）于Binder类，Client端继承（或间接继承）于BinderProxy类。例如ActivityManagerService这个服务作为Server端，间接继承Binder类，而相应的ActivityManager作为Client端，间接继承于BinderProxy类。当然还有PackageManagerService、WindowManagerService等很多系统服务都是采用C/S架构。
 2. Native Framework层：这是C++层，作为Server端继承（或间接继承）于BBinder类，Client端继承（或间接继承）于BpBinder。例如MediaPlayService（Server端）和MediaPlay（Client端）
 
+#Binder跨进程原理
+跨进程通信需要内核空间做支持。传统的IPC机制如管道、Socket都是内核的一部分，因此通过内核支持来实现进程间通信肯定没有问题。但是Binder不是内核的一部分，怎么支持进程间通信呢？两个技术点
+####动态内核可加载模块（Loadable Kernel Module,LKM）机制
+1. 模块可以单独编译，但是不能单独运行。运行时可以被链接到内核作为内核的一部分运行。
+2. 在Android系统中，这个运行在内核空间，负责各个用户进程通过Binder实现通信的内核模块就叫Binder驱动（Binder Dirver）
 
+####内存映射
+1. 内存映射简单的讲就是将用户空间的一块内存区域映射到内核空间。映射关系建立后，用户对这块内存区域的修改可以直接反应到内核空间；反之内核空间对这块区域的修改也能直接反应到用户空间。
+2. Binder涉及到的内存映射通过mmap()来实现的，mmap()是操作系统中一种内存映射的方法。
+3. 内存映射能减少数据的拷贝次数，实现用户空间和内核空间的高效互动。
