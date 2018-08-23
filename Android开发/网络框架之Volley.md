@@ -42,9 +42,11 @@ public class OkHttpStack implements HttpStack {
 
         Map<String, String> headers = request.getHeaders();
         for (final String name : headers.keySet()) {
+            if (name == null || headers.get(name) == null) continue;
             builder.addHeader(name, headers.get(name));
         }
         for (final String name : additionalHeaders.keySet()) {
+            if (name == null || additionalHeaders.get(name) == null) continue;
             builder.addHeader(name, additionalHeaders.get(name));
         }
 
